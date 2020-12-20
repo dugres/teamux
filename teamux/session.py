@@ -31,6 +31,10 @@ class Session(Base):
         self.tmux(f'new-window', '-n', name)
         return self.get(name)
 
+    @property
+    def is_active(self):
+        return getattr(self, 'session_attached')=='1'
+
     def __str__(self):
         f = self.fields
         return f"{self.is_active and '*' or ' '} {f.session_name}"

@@ -30,7 +30,7 @@ class Window(Base):
 
     def select(self, target):
         self.tmux(f'select-pane', target=target)
-        return self.pane
+        return self.active
 
     def split(self, hv='h'):
         self.tmux(f'split-window', f'-{hv}')

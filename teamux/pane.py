@@ -30,8 +30,8 @@ class Pane(Base):
         self.tmux('send-keys', keys)
         self.tmux('send-keys', 'Enter')
 
-    def send_key(self, key):
-        self.tmux('send-keys', key)
+    def send_keys(self, keys):
+        self.tmux('send-keys', keys)
 
     def script(self, source):
         for line in source.split('\n'):
@@ -41,7 +41,7 @@ class Pane(Base):
 
     @property
     def capture(self):
-        return self.tmux('capture-pane', '-p').stdout
+        return self.tmux('capture-pane', '-p')
 
     def search(self, pat, line, num):
         found = search(pat, line)
@@ -78,7 +78,6 @@ class Pane(Base):
             for line in out[-3:]:
                 if search(pat, line):
                     go = False
-            # print(pat, '->', out[-3:])
         if msg:
             print(msg)
 
