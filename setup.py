@@ -7,7 +7,7 @@ readme = open(join(curdir, 'README.rst')).read()
 
 setup(
     name             = 'teamux',
-    version          = '0.20.51.0',
+    version          = '0.20.51.1',
     description      = 'Tmux library',
     long_description = readme,
     keywords         = ['utility', ],
