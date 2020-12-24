@@ -4,12 +4,11 @@ from .window import Window
 
 class Session(Base):
     keys = '''
-        session_name
-        session_active
         session_id
+        session_name
+        session_attached
         session_width
         session_height
-        session_attached
     '''
     Child = Window
     list_cmd ='list-windows'

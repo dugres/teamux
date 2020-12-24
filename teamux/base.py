@@ -56,10 +56,17 @@ class Base:
     @property
     def children(self):
         keys, make = self.spec()
-        lines = self.tmux(
-            self.list_cmd,
-            format = self.format(keys),
-        )
+        if isinstance(self.list_cmd, tuple):
+            cmd, arg = self.list_cmd
+            lines = self.tmux(
+                cmd, arg,
+                format = self.format(keys),
+            )
+        else:
+            lines = self.tmux(
+                self.list_cmd,
+                format = self.format(keys),
+            )
         for line in lines:
             vals = line.split('\t')
             fields = make(vals)

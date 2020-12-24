@@ -33,6 +33,19 @@ class Pane(Base):
     def send_keys(self, keys):
         self.tmux('send-keys', keys)
 
+    def zoom(self):
+        self.tmux('resize-pane', '-Z')
+
+    @property
+    def width(self):
+        return int(self.pane_width)
+
+    @width.setter
+    def width(self, percent):
+        w = self.window.width
+        val = int(w*percent/100)
+        self.tmux('resize-pane', f'-x{val}')
+
     def script(self, source):
         for line in source.split('\n'):
             line = line.strip()
@@ -81,10 +94,15 @@ class Pane(Base):
         if msg:
             print(msg)
 
-    def run(self, pane, cmd, exp=None, msg=None):
+    def run(self, cmd, exp=None, msg=None):
         self.send(cmd)
         if exp:
             self.wait(exp, msg)
+
+    def close(self):
+        self.send('# Pane closing ...')
+        sleep(1)
+        self.send_keys('C-d')
 
     def __str__(self):
         return f"{self.is_active and '*' or ' '} {self.pane_title}{self.pane_id}"

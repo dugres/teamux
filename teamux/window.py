@@ -1,3 +1,5 @@
+from time import sleep
+
 from .base import Base
 from .pane import Pane
 
@@ -13,12 +15,16 @@ class Window(Base):
         window_index
     '''
     Child = Pane
-    list_cmd = 'list-panes'
+    list_cmd = 'list-panes', '-a'
 
 
     def __init__(self, session, fields):
         self.session = session
         self.fields = fields
+
+    @property
+    def width(self):
+        return int(self.window_width)
 
     @property
     def panes(self):
@@ -34,6 +40,7 @@ class Window(Base):
 
     def split(self, hv='h'):
         self.tmux(f'split-window', f'-{hv}')
+        sleep(1)
 
     @property
     def right(self):
@@ -42,6 +49,14 @@ class Window(Base):
     @property
     def left(self):
         return self.select('left')
+
+    def swap(self):
+        self.tmux(f'swap-pane', '-dU')
+
+    def close(self):
+        for pane in self.panes:
+            pane.send('# Window closing ...')
+            pane.close()
 
     def __str__(self):
         return f"{self.is_active and '*' or ' '} {self.window_name}"
