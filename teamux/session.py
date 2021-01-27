@@ -7,8 +7,6 @@ class Session(Base):
         session_id
         session_name
         session_attached
-        session_width
-        session_height
     '''
     Child = Window
     list_cmd ='list-windows'

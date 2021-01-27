@@ -82,22 +82,27 @@ class Pane(Base):
             if found:
                 yield found
 
-    def wait(self, pat, msg=None):
+    def wait(self, pat, msg=None, back=1, dbg=None):
         go = True
         while go:
             sleep(1)
             out = self.capture
             if not out: continue
-            for line in out[-3:]:
+            for line in out[-back:]:
                 if search(pat, line):
+                    if dbg:
+                        print(f'{dbg} : {pat} found in {line}')
                     go = False
+                else:
+                    if dbg:
+                        print(f'{dbg} : {pat} not in {line}')
         if msg:
             print(msg)
 
-    def run(self, cmd, exp=None, msg=None):
+    def run(self, cmd, exp=None, msg=None, back=1, dbg=None):
         self.send(cmd)
         if exp:
-            self.wait(exp, msg)
+            self.wait(exp, msg, back, dbg)
 
     def close(self):
         self.send('# Pane closing ...')
