@@ -46,12 +46,6 @@ class Pane(Base):
         val = int(w*percent/100)
         self.tmux('resize-pane', f'-x{val}')
 
-    def script(self, source):
-        for line in source.split('\n'):
-            line = line.strip()
-            if line and not line.startswith('#'):
-                self.send(line)
-
     @property
     def capture(self):
         return self.tmux('capture-pane', '-p')
@@ -99,10 +93,23 @@ class Pane(Base):
         if msg:
             print(msg)
 
-    def run(self, cmd, exp=None, msg=None, back=1, dbg=None):
-        self.send(cmd)
+    def run(self, cmd, exp=None, head=None, foot=None, back=1, dbg=None, raw=False):
+        if head: print(head)
+        self.send_keys(cmd) if raw else self.send(cmd)
+        if exp: self.wait(exp, foot, back, dbg)
+
+    def script(self, source, exp=None, head=None, foot=None, back=1, dbg=None):
+        if head: print(head)
+
+        for line in source.split('\n'):
+            line = line.strip()
+            if line and not line.startswith('#'):
+                self.send(line)
+
         if exp:
-            self.wait(exp, msg, back, dbg)
+            self.wait(exp, foot, back, dbg)
+        elif foot:
+            print(foot)
 
     def close(self):
         self.send('# Pane closing ...')
