@@ -117,5 +117,6 @@ class Pane(Base):
         self.send_keys('C-d')
 
     def __str__(self):
-        return f"{self.is_active and '*' or ' '} {self.pane_title}{self.pane_id}"
+        lineage = f' > {self.context.lineage}' if self.context else ''
+        return f"{self.is_active and '*' or ' '} {self.pane_title}{self.pane_id}{lineage}"
 
