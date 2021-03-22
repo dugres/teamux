@@ -45,13 +45,12 @@ class Context:
 
 
 class Manager:
-    def __init__(self, pane, ctxs, **kw):
-        self.pane_getter = pane
+    def __init__(self, pane_getter, ctxs, **kw):
         cdict = {}
         for ctx in ctxs:
             cdict[ctx.name] = ctx(
                 self,
-                pane,
+                pane_getter,
                 cdict.get(ctx.parent),
                 **kw
             )
@@ -59,26 +58,29 @@ class Manager:
         self.current = None
 
     def enter(self, target):
-        pane = self.pane_getter()
         target = self.contexts[target]
         targets = target.lineage.split('.')
+
         while self.current and self.current.name not in targets:
             self.current.exit()
+
         for name in targets:
             names = self.current.lineage.split('.') if self.current else []
             if name not in names:
                 ctx = self.contexts[name]
                 ctx.enter()
+
         print(f' = {self.current}')
 
     def exit(self, target=None):
-        pane = self.pane_getter()
         if not target:
             target = self.current.previous.name
+
         while self.current.name!=target:
             self.current.exit()
             if not self.current.parent:
                 self.current.exit()
                 break
+
         print(f' = {self.current}')
 
