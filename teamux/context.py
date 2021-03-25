@@ -1,30 +1,37 @@
 class Context:
-    def __init__(self, manager, pane, parent, **ctx_vars):
+    def __init__(self, manager, pane, parent, **environ):
         self.manager = manager
         self.pane_getter = pane
         self.parent = parent
-        self.ctx_vars = ctx_vars
+        self.environ = environ
         self.previous = None
+        self.echo = True
 
     @property
     def lineage(self):
         return f'{self.parent.lineage}.{self.name}' if self.parent else self.name
 
-    def __call__(self):
+    def do_enter(self):
         raise NotImplemented
 
     @property
     def pane(self):
         return self.pane_getter()
 
-    def run(self, cmd, echo=False):
-        msg = f' > {cmd}' if echo else None
-        self.pane.run(cmd, self.prompt, head=msg)
+    def run(self, cmd, **kw):
+        head = kw.get(
+            'head',
+            f' -> {cmd}' if self.echo else None
+        )
+        prompt = kw.get('exp', self.prompt)
+        self.pane.run(cmd, exp=prompt, head=head)
 
     def enter(self):
         current = self.manager.current
         print(f' + {self.name}')
-        self()
+        bak, self.echo = self.echo, False
+        self.do_enter()
+        self.echo = bak
         self.previous = current
         self.manager.current = self
 
@@ -90,4 +97,7 @@ class Manager:
 
         if self.current != last:
             print(f' = {self.current}')
+
+    def run(self, cmd, **kw):
+        self.current.run(cmd, **kw)
 
