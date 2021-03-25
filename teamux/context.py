@@ -17,8 +17,9 @@ class Context:
     def pane(self):
         return self.pane_getter()
 
-    def run(self, cmd):
-        self.pane.run(cmd, self.prompt, foot=f' > {self.name}')
+    def run(self, cmd, echo=False):
+        msg = f' > {cmd}' if echo else None
+        self.pane.run(cmd, self.prompt, head=msg)
 
     def enter(self):
         current = self.manager.current
@@ -58,6 +59,8 @@ class Manager:
         self.current = None
 
     def enter(self, target):
+        last = self.current
+
         target = self.contexts[target]
         targets = target.lineage.split('.')
 
@@ -70,9 +73,12 @@ class Manager:
                 ctx = self.contexts[name]
                 ctx.enter()
 
-        print(f' = {self.current}')
+        if self.current != last:
+            print(f' = {self.current}')
 
     def exit(self, target=None):
+        last = self.current
+
         if not target:
             target = self.current.previous.name
 
@@ -82,5 +88,6 @@ class Manager:
                 self.current.exit()
                 break
 
-        print(f' = {self.current}')
+        if self.current != last:
+            print(f' = {self.current}')
 
