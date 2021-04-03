@@ -52,9 +52,28 @@ class Context:
         return self.lineage
 
 
+class Root(Context):
+    name = None
+    prompt = r'.*\$$'
+    def do_enter(self): pass
+    def exit_cmd(self): pass
+    def exit(self): pass
+    def __bool__(self):
+        return False
+
+
 class Manager:
     def __init__(self, pane_getter, ctxs, **kw):
-        cdict = {}
+        prompt = kw.pop('prompt', None)
+        if prompt:
+            Root.prompt = prompt
+        self.current = Root(
+            self,
+            pane_getter,
+            None,
+        )
+
+        cdict = {None : self.current}
         for ctx in ctxs:
             cdict[ctx.name] = ctx(
                 self,
@@ -63,7 +82,6 @@ class Manager:
                 **kw
             )
         self.contexts = cdict
-        self.current = None
 
     def enter(self, target):
         last = self.current
@@ -98,6 +116,6 @@ class Manager:
         if self.current != last:
             print(f' = {self.current}')
 
-    def run(self, cmd, **kw):
-        self.current.run(cmd, **kw)
+    def __getattr__(self, attr):
+        return getattr(self.current.pane, attr)
 
