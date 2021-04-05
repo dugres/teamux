@@ -31,6 +31,7 @@ class Context:
         print(f' + {self.name}')
         bak, self.echo = self.echo, False
         self.do_enter()
+        self.pane.prompt = self.prompt
         self.echo = bak
         self.previous = current
         self.manager.current = self
@@ -47,6 +48,7 @@ class Context:
         if self.previous:
             self.wait_cmd(self.previous.prompt)
             self.manager.current = self.previous
+            self.pane.prompt = self.previous.prompt
 
     def __str__(self):
         return self.lineage

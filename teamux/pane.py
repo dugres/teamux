@@ -25,10 +25,12 @@ class Pane(Base):
     def __init__(self, window, fields):
         self.window = window
         self.fields = fields
+        self.prompt = r'.*\$$'
 
-    def send(self, keys):
+    def send(self, keys, wait=True):
         self.tmux('send-keys', keys)
         self.tmux('send-keys', 'Enter')
+        wait and self.wait(self.prompt)
 
     def send_keys(self, keys):
         self.tmux('send-keys', keys)
@@ -95,16 +97,17 @@ class Pane(Base):
 
     def run(self, cmd, exp=None, head=None, foot=None, back=1, dbg=None, raw=False):
         if head: print(head)
-        self.send_keys(cmd) if raw else self.send(cmd)
+        self.send_keys(cmd) if raw else self.send(cmd, wait=False)
         if exp: self.wait(exp, foot, back, dbg)
 
-    def script(self, source, exp=None, head=None, foot=None, back=1, dbg=None):
+    def script(self, source, exp=None, head=None, foot=None, back=1, dbg=None, wait=True, **kw):
         if head: print(head)
 
+        source = source.format(**kw)
         for line in source.split('\n'):
             line = line.strip()
             if line and not line.startswith('#'):
-                self.send(line)
+                self.send(line, wait)
 
         if exp:
             self.wait(exp, foot, back, dbg)
@@ -112,7 +115,7 @@ class Pane(Base):
             print(foot)
 
     def close(self):
-        self.send('# Pane closing ...')
+        self.send('# Pane closing ...', wait=False)
         sleep(1)
         self.send_keys('C-d')
 
