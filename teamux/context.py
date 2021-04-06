@@ -1,7 +1,7 @@
 class Context:
     def __init__(self, manager, pane, parent, **environ):
         self.manager = manager
-        self.pane_getter = pane
+        self.pane = pane
         self.parent = parent
         self.environ = environ
         self.previous = None
@@ -14,17 +14,13 @@ class Context:
     def do_enter(self):
         raise NotImplemented
 
-    @property
-    def pane(self):
-        return self.pane_getter()
-
     def run(self, cmd, **kw):
         head = kw.get(
             'head',
             f' -> {cmd}' if self.echo else None
         )
         prompt = kw.get('exp', self.prompt)
-        self.pane.run(cmd, exp=prompt, head=head)
+        self.pane.run(cmd, exp=prompt, head=head, **kw)
 
     def enter(self):
         current = self.manager.current
@@ -65,13 +61,13 @@ class Root(Context):
 
 
 class Manager:
-    def __init__(self, pane_getter, ctxs, **kw):
+    def __init__(self, pane, ctxs, **kw):
         prompt = kw.pop('prompt', None)
         if prompt:
             Root.prompt = prompt
         self.current = Root(
             self,
-            pane_getter,
+            pane,
             None,
         )
 
@@ -79,7 +75,7 @@ class Manager:
         for ctx in ctxs:
             cdict[ctx.name] = ctx(
                 self,
-                pane_getter,
+                pane,
                 cdict.get(ctx.parent),
                 **kw
             )

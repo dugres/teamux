@@ -39,3 +39,13 @@ def test_f_pane_zoom():
     w.left.zoom()
     sleep(2)
     w.close()
+
+
+def test_f_pane_print():
+    w = tmux.active.new('test_print')
+    w.split()
+    for pane in w.panes:
+        print(pane)
+    w.close()
+
+test_f_pane_print()

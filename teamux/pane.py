@@ -26,11 +26,12 @@ class Pane(Base):
         self.window = window
         self.fields = fields
         self.prompt = r'.*\$$'
+        self.context = None
 
-    def send(self, keys, wait=True):
+    def send(self, keys, wait=True, dbg=False):
         self.tmux('send-keys', keys)
         self.tmux('send-keys', 'Enter')
-        wait and self.wait(self.prompt)
+        wait and self.wait(self.prompt, dbg=dbg)
 
     def send_keys(self, keys):
         self.tmux('send-keys', keys)
@@ -81,7 +82,7 @@ class Pane(Base):
     def wait(self, pat, msg=None, back=1, dbg=None):
         go = True
         while go:
-            sleep(1)
+            sleep(.1)
             out = self.capture
             if not out: continue
             for line in out[-back:]:
@@ -107,7 +108,7 @@ class Pane(Base):
         for line in source.split('\n'):
             line = line.strip()
             if line and not line.startswith('#'):
-                self.send(line, wait)
+                self.send(line, wait, dbg)
 
         if exp:
             self.wait(exp, foot, back, dbg)
