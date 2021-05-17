@@ -96,6 +96,17 @@ class Pane(Base):
         if msg:
             print(msg)
 
+    def expect(self, back=1, **expected):
+        go = True
+        while go:
+            sleep(.1)
+            out = self.capture
+            if not out: continue
+            for case, pat in expected.items():
+                for line in out[-back:]:
+                    if search(pat, line):
+                        return case
+
     def run(self, cmd, exp=None, head=None, foot=None, back=1, dbg=None, raw=False):
         if head: print(head)
         self.send_keys(cmd) if raw else self.send(cmd, wait=False)
