@@ -107,6 +107,18 @@ class Pane(Base):
                     if search(pat, line):
                         return case
 
+    def still(self, back=1, since=1):
+        last = '__none__'
+        while True:
+            sleep(1)
+            out = self.capture[-back]
+            if out==last:
+                count+=1
+                if count==since: break
+            else:
+                count = 0
+                last = out
+
     def run(self, cmd, exp=None, head=None, foot=None, back=1, dbg=None, raw=False):
         if head: print(head)
         self.send_keys(cmd) if raw else self.send(cmd, wait=False)
