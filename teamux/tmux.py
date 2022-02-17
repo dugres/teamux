@@ -30,3 +30,6 @@ class Tmux(Base):
                 print(' '*6, w)
                 for p in w.panes:
                     print(' '*9, p)
+
+
+tmux = Tmux()

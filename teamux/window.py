@@ -35,12 +35,15 @@ class Window(Base):
                 yield pane
 
     def select(self, target):
-        self.tmux(f'select-pane', target=target)
+        self.tmux(f'select-pane', target=str(target))
         return self.active
 
     def split(self, hv='h'):
         self.tmux(f'split-window', f'-{hv}')
         sleep(1)
+
+    def even(self):
+        self.tmux('select-layout', 'even-horizontal')
 
     @property
     def right(self):

@@ -1,3 +1,6 @@
+from . import tmux
+
+
 class Context:
     def __init__(self, manager, pane, parent, **environ):
         self.manager = manager
@@ -116,4 +119,68 @@ class Manager:
 
     def __getattr__(self, attr):
         return getattr(self.current.pane, attr)
+
+
+class MultiPanes:
+    # mandatory seq of Context's subclass
+    contexts = list()
+
+    # optional arbitrary data transfered to contexts
+    environ = dict()
+
+    # space speparated panes's names
+    panes = ''
+
+    def __init__(self):
+        assert self.contexts
+        assert all(
+            issubclass(ctx, Context)
+            for ctx in self.contexts
+        )
+        self.__dict__.update(self.environ)
+        self.names = {
+            name : idx
+            for idx, name in enumerate(self.panes.split())
+        }
+        assert len(names)>1
+
+        session = tmux.active
+        self.win = session.new()
+        self.cur = self.win.left
+
+        manager = Manager(
+            self.cur,
+            self.contexts,
+            **self.environ
+        )
+        self.managers = [manager]
+        self.current = manager
+
+        for n in list(self.names)[1:]:
+            self.add()
+            self.win.even()
+
+    def add(self):
+        self.cur = self.win.right
+        self.win.split()
+        self.cur = self.win.right
+        manager = Manager(
+            self.cur,
+            self.contexts,
+            **self.environ
+        )
+        self.managers.append(manager)
+        self.current = manager
+
+    def select(self, name):
+        idx = self.names[name]
+        self.current = self.managers[idx]
+        self.win.select(idx)
+
+    def __getattr__(self, attr):
+        try:
+            return getattr(self.current, attr)
+        except Exception as x:
+            print(f'\n ! getattr {attr} ! {x}\n')
+            raise
 

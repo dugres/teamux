@@ -1,5 +1,2 @@
-from .tmux import Tmux
-from .context import Context, Manager
-
-
-tmux = Tmux()
+from .tmux import tmux
+from .context import Context, Manager, MultiPanes
