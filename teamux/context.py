@@ -177,6 +177,14 @@ class MultiPanes:
         self.current = self.managers[idx]
         self.win.select(idx)
 
+    @property
+    def width(self):
+        return self.current.current.pane.width
+
+    @width.setter
+    def width(self, percent):
+        self.current.current.pane.width = percent
+
     def __getattr__(self, attr):
         try:
             return getattr(self.current, attr)
