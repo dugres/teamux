@@ -142,7 +142,7 @@ class MultiPanes:
             name : idx
             for idx, name in enumerate(self.panes.split())
         }
-        assert len(names)>1
+        assert len(self.names)>1
 
         session = tmux.active
         self.win = session.new()
